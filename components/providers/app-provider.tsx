@@ -7,7 +7,8 @@ import { useAuthStore } from '@/store/auth-store';
 import { useUIStore } from '@/store/ui-store';
 import { Loader } from '../ui/loader';
 
-const PUBLIC_ROUTES = ['/', '/register', '/login', '/reset-password'];
+// Добавили '/user', чтобы гости могли смотреть профили
+const PUBLIC_ROUTES = ['/', '/register', '/login', '/reset-password', '/search', '/user'];
 const ALLOWED_AUTH_ROUTES = ['/verify-email', '/onboarding'];
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -26,7 +27,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   let redirectTo: string | null = null;
 
   if (isInitialized) {
-    const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+        // Проверяем точное совпадение ИЛИ начало пути (для /user/slug)
+    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'));
     const isAllowedAuthRoute = ALLOWED_AUTH_ROUTES.some(r => pathname.startsWith(r));
 
     if (!user) {
@@ -45,9 +47,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       else if (user.has_completed_onboarding && !user.email_verified_at && !isStaff && !isAllowedAuthRoute) {
         redirectTo = '/verify-email';
       } 
+
       // Ситуация: Авторизованный юзер пытается зайти на /login или /register
-      else if (isPublicRoute && pathname !== '/') {
-        // Если он на /login или /register, но при этом верифицирован и прошел онбординг - кидаем на главную
+      // (Проверяем строго эти два роута, чтобы не блокировать /user/slug)
+      else if ((pathname === '/login' || pathname === '/register')) {
         if (user.has_completed_onboarding && user.email_verified_at) {
             redirectTo = '/';
         }

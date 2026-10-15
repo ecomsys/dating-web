@@ -14,7 +14,7 @@ import { ButtonLink } from "@/components/ui/button-link";
 // Тип для карточки юзера из API
 interface FeedUser {
   id: number;
-  slug: string;
+  slug: string; 
   name: string;
   age: number | string;
   city: string;

@@ -15,7 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Loader2, ChevronDown, Search } from "lucide-react";
-import { CityCombobox } from "@/components/city-combobox";
+import { CityCombobox } from "@/components/ui/city-combobox";
 
 export interface Filters {
   gender: string;

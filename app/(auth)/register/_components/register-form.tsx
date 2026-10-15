@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { AxiosError } from "axios";
 
-import { CityCombobox } from '@/components/city-combobox';
+import { CityCombobox } from '@/components/ui/city-combobox';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

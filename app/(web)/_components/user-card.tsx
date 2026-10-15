@@ -1,11 +1,10 @@
 // app/(web)/_components/user-card.tsx
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Camera, MapPin, MessageCircle, User } from 'lucide-react';
 
-// Тип данных карточки (совпадает с тем, что отдает твой FeedController)
 interface FeedUser {
   id: number;
   slug: string;
@@ -29,23 +28,40 @@ interface UserCardProps {
 }
 
 export function UserCard({ user, index, isAuth, onWriteClick }: UserCardProps) {
-  // Анимация появления (как в твоем Alpine референсе)
+  const router = useRouter();
+  
+  // Анимация появления
   const animationDelay = `${Math.min((index % 9) * 75, 400)}ms`;
 
-  // Обработчик клика для гостей (перехватываем переход и открываем модалку)
-  const handleGuestClick = (e: React.MouseEvent) => {
+
+  // Обработчик клика по всей карточке (Всегда переходит в профиль)
+  const handleCardClick = () => {
+    router.push(`/user/${user.slug}`);
+  };
+
+  // Обработчик клика по кнопке "Написать"
+  const handleWriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Останавливаем всплытие, чтобы карточка не среагировала
+    
     if (!isAuth) {
-      e.preventDefault();
-      onWriteClick?.();
+      onWriteClick?.(); // Гостям открываем логин
+      return;
     }
+    
+    // TODO: Здесь будет логика перехода в чат, когда мы его сделаем.
+    // А пока для теста просто кидаем в профиль или показываем тост.
+    console.log(`Открываем чат с ${user.name}`);
+    // router.push(`/chat?user=${user.slug}`);
   };
 
   return (
-    <Link
-      href={`/user/${user.slug}`}
-      onClick={handleGuestClick}
+    <div
+      onClick={handleCardClick}
+      onKeyDown={(e) => { if (e.key === 'Enter') handleCardClick(); }} // Для доступности (клавиатура)
+      role="button"
+      tabIndex={0}
       style={{ animation: 'fadeInUp 0.4s ease-out forwards', animationDelay, opacity: 0 }}
-      className={`relative group rounded-sm overflow-hidden border bg-card shadow-sm hover:shadow-md transition-all flex flex-col ${
+      className={`relative group rounded-sm overflow-hidden border bg-card shadow-sm hover:shadow-md transition-all flex flex-col cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring ${
         user.has_premium ? 'border-2 border-yellow-400 shadow-md shadow-yellow-400/30' : 'border-border'
       }`}
     >
@@ -100,13 +116,13 @@ export function UserCard({ user, index, isAuth, onWriteClick }: UserCardProps) {
         {/* Кнопка "Написать" */}
         <Button 
           variant="ghost" 
-          onClick={(e) => { e.stopPropagation(); handleGuestClick(e); }} 
+          onClick={handleWriteClick}
           className="mt-auto pt-2 w-full bg-primary/10 text-primary hover:bg-primary/20 font-medium py-2 rounded-sm transition-colors flex items-center justify-center gap-1.5 text-xs h-auto"
         >
           <MessageCircle className="w-4 h-4" />
           Написать
         </Button>
       </div>
-    </Link>
+    </div>
   );
 }
